@@ -4,7 +4,6 @@ import os
 import utilities
 
 filepath = os.path.join(".", "..", "DATA", "facebook.txt")
-t = []
 edgeSet = set()
 
 edgesTS, sorted_nodes, edges, new_nodeDictionary, number_days, total_ids = utilities.readFile(filepath)
