@@ -3,7 +3,7 @@ __author__ = 'SAMARTH'
 import os
 import utilities as util
 
-filepath = os.path.join(".", "..", "DATA", "facebook1.txt")
+filepath = os.path.join(".", "..", "DATA", "facebook.txt")
 edgeSet = set()
 
 edgesTS, number_days, number_nodes, trial_new_node_dict = util.readFile(filepath)
