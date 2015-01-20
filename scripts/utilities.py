@@ -1,6 +1,6 @@
 __author__ = 'SAMARTH'
 
-import networkx as nx
+# import networkx as nx
 
 def readFile(filepath):
 
@@ -67,50 +67,95 @@ def readFile(filepath):
     sorted_nodes = sorted(node_list)
     number_nodes = len(node_list)
     number_days = edgesTS[len(edgesTS) - 1][0] + 1
-    total_ids = number_days * number_nodes
+    # total_ids = number_days * number_nodes
 
     print 'Total number of nodes in the dataset are: ', number_nodes
     print 'Total number of days in the dataset are: ', number_days
-    print 'Therefore, total number of newly generated temporal ids will be: ', total_ids
-    # print 'node_list in a sorted order is: ',sorted_nodes # <-- This statement takes too much processing.
+    # print 'Therefore, total number of newly generated temporal ids will be: ', total_ids
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    #temporal_id_keeper is a list of lists containing 105 lists of 4117 numbers (in succession) each.
-    #temporal_id_keeper[0] will have all the numbers from 0 to 4117 - depicting the temporal id at time 0.
-    #temporal_id_keeper[x] will have all the numbers which depict the node_id at time x.
-    temporal_id_keeper = [range(number_nodes * i, number_nodes * (i+1)) for i in range(0, number_days)]
+    # ++++++++++++++++++++++++++++++++NEW CODE STARTS HERE+++++++++++++++++++++++++++++++++++++++++++++++++=+++++++
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    trial_new_node_ids = range(0, number_nodes)
+    # A mapping from sorted_nodes to new_ids. But only for time 0. Subsequent new_ids are just a matter of calculation.
+    trial_new_node_dict = dict(zip(sorted_nodes, trial_new_node_ids))
 
-    # new_nodeDictionary keeps track of the same node at different times.
-    # node 0 at time 0 will be linked with node 4118. 4118 will be linked with 8235, and so on.
-    # It will be used to add the edges between nodes at time t+1 and t-1.
-    new_nodeDictionary = {}
-    for i in range(0, number_days):
-        new_nodeDictionary[i] = dict(zip(sorted_nodes, temporal_id_keeper[i]))
-
-    # print 'Old edgeTS is ',edgesTS
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # ++++++++++++++++++++++++++++++++OLD CODE STARTS HERE+++++++++++++++++++++++++++++++++++++++++++++++++=+++++++
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # #temporal_id_keeper is a list of lists containing 105 lists of 4117 numbers (in succession) each.
+    # #temporal_id_keeper[0] will have all the numbers from 0 to 4117 - depicting the temporal id at time 0.
+    # #temporal_id_keeper[x] will have all the numbers which depict the node_id at time x.
+    #
+    # temporal_id_keeper = [range(number_nodes * i, number_nodes * (i+1)) for i in range(0, number_days)]
+    #
+    # # new_nodeDictionary keeps track of the same node at different times.
+    # # node 0 at time 0 will be linked with node 4118. 4118 will be linked with 8235, and so on.
+    # # It will be used to add the edges between nodes at time t+1 and t-1.
+    # new_nodeDictionary = {}
+    # for i in range(0, number_days):
+    #     new_nodeDictionary[i] = dict(zip(sorted_nodes, temporal_id_keeper[i]))
+    #
+    # # print 'Old edgeTS is ',edgesTS
     fd.close()
 
-    return edgesTS, sorted_nodes, edges, new_nodeDictionary, number_days, total_ids
+    #OLD return statement
+    # return edgesTS, sorted_nodes, new_nodeDictionary, number_days, number_nodes, trial_new_node_ids, trial_new_node_dict
+    #NEW return statement
+    return edgesTS, number_days, number_nodes, trial_new_node_dict
 
-def updateEdgesTS (edgesTS, new_nodeDictionary):
+def updateEdgesTS (edgesTS, number_nodes, trial_new_node_dict):
 
-    # replace the node_id with temporal_id first. So all nodes will have new IDs now.
+    # new_id = number_nodes * day + original_id
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # ++++++++++++++++++++++++++++++++NEW CODE STARTS HERE+++++++++++++++++++++++++++++++++++++++++++++++++=+++++++
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     for i in range(len(edgesTS)):
-        day = edgesTS[i][0]; # =========== x is the day
-        edgesTS[i][1][0] = new_nodeDictionary[day][edgesTS[i][1][0]]
-        edgesTS[i][1][1] = new_nodeDictionary[day][edgesTS[i][1][1]]
+        edgesTS[i][1][0] = trial_new_node_dict[edgesTS[i][1][0]]
+        edgesTS[i][1][1] = trial_new_node_dict[edgesTS[i][1][1]]
+
+    for i in range(len(edgesTS)):
+        day = edgesTS[i][0]
+        edgesTS[i][1][0] +=  number_nodes * day
+        edgesTS[i][1][1] +=  number_nodes * day
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # ++++++++++++++++++++++++++++++++OLD CODE STARTS HERE+++++++++++++++++++++++++++++++++++++++++++++++++=+++++++
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # replace the node_id with temporal_id first. So all nodes will have new IDs now.
+    # for i in range(len(edgesTS)):
+    #     day = edgesTS[i][0]
+    #     edgesTS[i][1][0] = new_nodeDictionary[day][edgesTS[i][1][0]]
+    #     edgesTS[i][1][1] = new_nodeDictionary[day][edgesTS[i][1][1]]
 
     # print 'updated edgeTS : ', edgesTS
     return edgesTS
 
-def temporalNeighborhood(edgeList, total_ids):
-    neighborhoodRecord = {}
-    G = nx.Graph()
-    G.add_edges_from(edgeList)
+#  OLD method to find temporal neighborhood.
+# def temporalNeighborhood(edgeList, total_ids):
+#     neighborhoodRecord = {}
+#     G = nx.Graph()
+#     G.add_edges_from(edgeList)
+#
+#     for i in range(0, total_ids):
+#         neighborhoodRecord[i] = G.neighbors(i)
+#
+#     # print 'Neighbors of keys are all the values ',neighborhoodRecord
+#     return neighborhoodRecord
 
-    for i in range(0, total_ids):
-        neighborhoodRecord[i] = G.neighbors(i)
+# Method to find neighborhood in the same time slice.
+def neigh(t, i, d, edgeTS):
+    classic_neighborhood = []
 
-    # print 'Neighbors of keys are all the values ',neighborhoodRecord
-    return neighborhoodRecord
+    for x in range(len(edgeTS)):
+        if edgeTS[x][0] == t:
+            if edgeTS[x][1][0] == i:
+                classic_neighborhood.append(edgeTS[x][1][1])
+            elif edgeTS[x][1][1] == i:
+                classic_neighborhood.append(edgeTS[x][1][0])
+            else:continue
+
+    # print 'classic_neighborhood is ', classic_neighborhood
+    return classic_neighborhood
