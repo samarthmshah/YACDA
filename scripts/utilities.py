@@ -12,14 +12,8 @@ def readFile(filepath):
     #=========================================================================================================
     #===new node_Dict's will keep a record of the "link" from the same node at different time instances.======
     #=========================================================================================================
-    new_nodeDict = {}
-    new_nodeDict2 = {}
-    new_nodeDict3 = {}
-    new_nodeDict4 = {}
-    new_nodeDict5 = {}
-    new_nodeDict6 = {}
 
-    # ================to open the file facebook.txt
+    # ================to open the file facebook.txt===========================================================
     with open(filepath,'r') as fd:
         for line in fd.readlines():
 
@@ -38,10 +32,6 @@ def readFile(filepath):
 
             # As the year is 2006 in the entire dataset, we don't care about 2006 anymore! we just take the month-day.
             timestamp = tstamp[5:10]
-
-            #tstamp = datetime.strptime(tstamp, '%Y-%m-%d %H:%M:%S')
-            #formatting it into this form %Y-%m-%d %H:%M:%S
-
             timemonth = int(timestamp[0:2])
             timeday = int(timestamp[3:5])
             #timestamp = ' '.join(timestamp[0:2])
@@ -84,8 +74,10 @@ def readFile(filepath):
     print 'Therefore, total number of newly generated temporal ids will be: ', total_ids
     # print 'node_list in a sorted order is: ',sorted_nodes # <-- This statement takes too much processing.
 
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #temporal_id_keeper is a list of lists containing 105 lists of 4117 numbers (in succession) each.
-    #temporal_id_keeper[0] will have all the numbers from 0 to 4117 - depicting the node id at time 0.
+    #temporal_id_keeper[0] will have all the numbers from 0 to 4117 - depicting the temporal id at time 0.
     #temporal_id_keeper[x] will have all the numbers which depict the node_id at time x.
     temporal_id_keeper = [range(number_nodes * i, number_nodes * (i+1)) for i in range(0, number_days)]
 
@@ -101,34 +93,13 @@ def readFile(filepath):
 
     return edgesTS, sorted_nodes, edges, new_nodeDictionary, number_days, total_ids
 
-# def classicNeighborhood(edges, nodes):
-#     normal_neighborhood = {}
-#     neighborIndividual = []
-#
-#     for node in nodes:
-#         normal_neighborhood[node] = None
-#         for edge in edges:
-#             if edge[0] == node:
-#   #              normal_neighborhood[node] = edge[1]
-#                 neighborIndividual.append(edge[1])
-#             elif edge[1] == node:
-# #                normal_neighborhood[node] = edge[0]
-#                 neighborIndividual.append(edge[0])
-#             else:continue
-#             #print neighborIndividual
-#         normal_neighborhood[node] = neighborIndividual
-#         del neighborIndividual[:]
-#
-#     #normal_neighborhood[node] = neighborIndividual
-#     return normal_neighborhood
-
 def updateEdgesTS (edgesTS, new_nodeDictionary):
 
     # replace the node_id with temporal_id first. So all nodes will have new IDs now.
     for i in range(len(edgesTS)):
-        x = edgesTS[i][0]; # =========== x is the day
-        edgesTS[i][1][0] = new_nodeDictionary[x][edgesTS[i][1][0]]
-        edgesTS[i][1][1] = new_nodeDictionary[x][edgesTS[i][1][1]]
+        day = edgesTS[i][0]; # =========== x is the day
+        edgesTS[i][1][0] = new_nodeDictionary[day][edgesTS[i][1][0]]
+        edgesTS[i][1][1] = new_nodeDictionary[day][edgesTS[i][1][1]]
 
     # print 'updated edgeTS : ', edgesTS
     return edgesTS
